@@ -43,23 +43,25 @@ class StorePricing(ABC):
         for mapping in ppp_price_mapping:
             iso2_code = mapping["ISO2"]
             local_price = mapping["ppp_adjusted_local_price"]
-            # local_currency = mapping["local_currency"]
+            country_info = self.countries_api.get_country_by_cca2(iso2_code)
+            local_currencies = list(country_info.currencies.keys())
 
             # Is the country featured in appstore list of countries?
             if iso2_code not in self.map_country_to_reference_rounded_price:
                 continue
 
-            appstore_currency, appstore_price = self.forex_api.convert(iso2_code, local_price, local_currency)
+            store_currency, store_price = self.forex_api.convert(iso2_code, local_price, local_currencies[0])
 
             # Some heavily devalued currencies might end up with very low usd values < 10
             # TODO needs a better fix
-            if appstore_price < 10:
-                appstore_price = 10
+            if store_price < 10:
+                store_price = 10
 
-            rounded_price = self.formatter.apply_price_format(price=appstore_price, format=x)
+            store_price_format = self.map_country_to_reference_rounded_price[iso2_code]
+            rounded_price = self.formatter.apply_price_format(price=store_price, format=store_price_format)
 
-            mapping["appstore_currency"] = appstore_currency
-            mapping["appstore_price"] = rounded_price
+            mapping["store_currency"] = store_currency
+            mapping["store_price"] = rounded_price
             store_prices.append(mapping)
 
         return store_prices

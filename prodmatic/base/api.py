@@ -3,13 +3,17 @@ from abc import ABC, abstractmethod
 
 
 class StoreAPI(ABC):
-    countries_api = RestCountriesAPI()
+    # countries_api = RestCountriesAPI()
 
     def __init__(self):
         pass
 
     @abstractmethod
-    def iap_exists(self, iap_identifier):
+    def list_iaps(self):
+        pass
+
+    @abstractmethod
+    def get_iap(self, iap_identifier):
         pass
 
     @abstractmethod
@@ -21,11 +25,11 @@ class StoreAPI(ABC):
         pass
 
     @abstractmethod
-    def get_iap(self, iap_identifier):
+    def delete_iap(self, iap_identifier):
         pass
 
     @abstractmethod
-    def subscription_exists(self, subscription_identifier):
+    def list_subscriptions(self):
         pass
 
     @abstractmethod
@@ -38,4 +42,8 @@ class StoreAPI(ABC):
 
     @abstractmethod
     def get_subscription(self, subscription_identifier):
+        pass
+
+    @abstractmethod
+    def delete_subscription(self, subscription_identifier):
         pass

@@ -71,4 +71,4 @@ class PlayStorePricing(StorePricing):
                     "iso2_code": iso_code,
                     "store_currency": entry["Buyer Currency and Price Range"],
                 }
-                self.map_country_to_store_currency[iso_code] = entry
+                self.map_country_to_store_currency[iso_code] = entry_clean

@@ -65,13 +65,15 @@ class AppStorePricing(StorePricing):
                         continue
 
                     country_info = {
-                        "Report Region": item["Report Region"],
-                        "Report Currency": item["Report Currency"],
-                        "Region Code": iso_code,
-                        "Country": c,
+                        "country": c,
+                        "iso2_code": iso_code,
+                        "store_currency": item["Report Currency"],
                     }
                     self.map_country_to_store_currency[iso_code] = country_info
             else:
-                item["Country"] = item["Countries or Regions"]
-                item.pop("Countries or Regions")
-                self.map_country_to_store_currency[item["Region Code"]] = item
+                country_info = {
+                    "country": item["Countries or Regions"],
+                    "iso2_code": item["Region Code"],
+                    "store_currency": item["Report Currency"],
+                }
+                self.map_country_to_store_currency[item["Region Code"]] = country_info

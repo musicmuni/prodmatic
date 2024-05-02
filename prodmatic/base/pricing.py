@@ -32,6 +32,7 @@ class StorePricing(ABC):
         pass
 
     def get_store_price_mapping(self, source_country="US", source_price=79, destination_country=None, year=None):
+        # Get equivalent prices in destination countries, based on PPP
         ppp_price_mapping = self.pppfy_converter.get_price_mapping(
             source_country, source_price, destination_country, year
         )
@@ -46,17 +47,24 @@ class StorePricing(ABC):
             country_info = self.countries_api.get_country_by_cca2(iso2_code)
             local_currencies = list(country_info.currencies.keys())
 
-            # Is the country featured in appstore list of countries?
+            # Is the country featured in appstore list of countries? Chuck if not
             if iso2_code not in self.map_country_to_reference_rounded_price:
                 continue
 
-            store_currency, store_price = self.forex_api.convert(iso2_code, local_price, local_currencies[0])
+            # Convert local currency to store supported currency
+            store_currency = "USD"
+            if iso2_code in self.map_country_to_store_currency:
+                store_currency = self.map_country_to_store_currency[iso2_code]["store_currency"]
+            store_price = self.forex_api.convert(
+                price=local_price, from_currency=local_currencies[0], to_currency=store_currency
+            )
 
             # Some heavily devalued currencies might end up with very low usd values < 10
             # TODO needs a better fix
             if store_price < 10:
                 store_price = 10
 
+            # Round off to a format that store recommends
             store_price_format = self.map_country_to_reference_rounded_price[iso2_code]
             rounded_price = self.formatter.apply_price_format(price=store_price, format=store_price_format)
 
@@ -64,4 +72,16 @@ class StorePricing(ABC):
             mapping["store_price"] = rounded_price
             store_prices.append(mapping)
 
+        # Check for countries on store's reference list but not in final mapping (missing PPP data)
+        countries_missing_ppp = set(self.map_country_to_reference_rounded_price.keys()) - set(
+            [i["ISO2"] for i in store_prices]
+        )
+        for c in countries_missing_ppp:
+            mapping = {
+                "store_currency": "USD",
+                "store_price": source_price,
+                "ISO2": c,
+                "ppp_adjusted_local_price": None,
+            }
+            store_prices.append(mapping)
         return store_prices

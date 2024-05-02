@@ -65,4 +65,10 @@ class PlayStorePricing(StorePricing):
                 entry = dict(zip(headers, row_data))
                 country = self.countries_api.search_countries(entry["Location"])[0]
                 iso_code = country.cca2
+
+                entry_clean = {
+                    "country": entry["Location"],
+                    "iso2_code": iso_code,
+                    "store_currency": entry["Buyer Currency and Price Range"],
+                }
                 self.map_country_to_store_currency[iso_code] = entry

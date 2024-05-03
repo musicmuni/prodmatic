@@ -71,3 +71,18 @@ class PlayStorePricing(StorePricing):
                     "store_currency": entry["Buyer Currency and Price Range"],
                 }
                 self.map_country_to_store_currency[iso_code] = entry_clean
+
+    def get_store_price_mapping(self, source_country="US", source_price=79, destination_country=None, year=None):
+        price_mapping = super().get_store_price_mapping(
+            source_country=source_country,
+            source_price=source_price,
+            destination_country=destination_country,
+            year=year,
+        )
+        store_iap_price_format = {}
+        for entry in price_mapping:
+            store_iap_price_format[entry["ISO2"]] = {
+                "priceMicros": str(int(entry["store_price"] * 1000000)),
+                "currency": entry["store_currency"],
+            }
+        return store_iap_price_format

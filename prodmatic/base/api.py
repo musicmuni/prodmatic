@@ -1,4 +1,4 @@
-from restcountries.api import RestCountriesAPI
+from pyrestcountries.api import RestCountriesAPI
 from abc import ABC, abstractmethod
 
 

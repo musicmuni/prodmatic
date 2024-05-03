@@ -4,27 +4,26 @@ from decimal import Decimal
 
 import requests
 from bs4 import BeautifulSoup
+from importlib import resources
 
 from ..base.pricing import StorePricing
 
 
 class PlayStorePricing(StorePricing):
-    def __init__(self, geo_utils=None):
+    def __init__(self):
         super().__init__()
         self.fetch_country_to_store_currency_map()
-        self.load_country_to_reference_rounded_prices(
-            store_reference_prices_file="resources/playstore_reference_prices.csv"
-        )
+        self.load_country_to_reference_rounded_prices()
 
-    def load_country_to_reference_rounded_prices(self, store_reference_prices_file):
-        with open(store_reference_prices_file, mode="r", encoding="utf-8") as csvfile:
+    def load_country_to_reference_rounded_prices(self):
+        with resources.open_text("prodmatic.resources", "playstore_reference_prices.csv") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 self.map_country_to_reference_rounded_price[row["Country"]] = Decimal(int(row["Price"])) / 1000000
 
     def fetch_country_to_store_currency_map(self):
         """Process HTML tables to extract and transform data according to the rules."""
-        data_sources = json.load(open("resources/data_sources.json"))
+        data_sources = json.load(resources.open_text("prodmatic.resources", "data_sources.json"))
         region_currency_reference_url = data_sources["playstore_region_currency_reference"]
         response = requests.get(region_currency_reference_url).text
         soup = BeautifulSoup(response, "html.parser")

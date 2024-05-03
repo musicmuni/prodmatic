@@ -9,6 +9,9 @@ setup(
     url="https://riyazapp.com",
     packages=find_packages(),
     include_package_data=True,
+    package_data={
+        "": ["resources/*.csv", "resources/*.json"],
+    },
     install_requires=[
         # List your package dependencies here
         # 'numpy', 'pandas', etc.

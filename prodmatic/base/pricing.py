@@ -1,4 +1,4 @@
-from restcountries.api import RestCountriesAPI
+from pyrestcountries.api import RestCountriesAPI
 from pppfy.converter import Converter
 from moneymatters.api import ExchangeAPI, Formatter
 from abc import ABC, abstractmethod
@@ -44,7 +44,7 @@ class StorePricing(ABC):
         for mapping in ppp_price_mapping:
             iso2_code = mapping["ISO2"]
             local_price = mapping["ppp_adjusted_local_price"]
-            country_info = self.countries_api.get_country_by_cca2(iso2_code)
+            country_info = self.countries_api.fetch_country_by_cca2(iso2_code)
             local_currencies = list(country_info.currencies.keys())
 
             # Is the country featured in appstore list of countries? Chuck if not

@@ -56,10 +56,15 @@ class PlayStorePricing(StorePricing):
                 # Create a list of column values
                 row_data = [col.get_text().strip() for i, col in enumerate(cols)]
 
-                # Extract only the capital letters from the fourth column
+                # Extract only the capital letters from the fourth column - currency
                 if len(row_data) > 3:
                     currency = "".join([c for c in row_data[3] if c.isupper()])
                     row_data[3] = currency
+
+                # Extract just alphabets from first column - country name
+                if len(row_data) >= 1:
+                    country_name = "".join([char for char in row_data[0] if char.isalpha()])
+                    row_data[0] = country_name
 
                 entry = dict(zip(headers, row_data))
                 country = self.countries_api.search_countries(entry["Location"])[0]

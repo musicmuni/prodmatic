@@ -47,10 +47,6 @@ class StorePricing(ABC):
             country_info = self.countries_api.fetch_country_by_cca2(iso2_code)
             local_currencies = list(country_info.currencies.keys())
 
-            # Is the country featured in appstore list of countries? Chuck if not
-            if iso2_code not in self.map_country_to_reference_rounded_price:
-                continue
-
             # Convert local currency to store supported currency
             store_currency = "USD"
             if iso2_code in self.map_country_to_store_currency:
@@ -65,23 +61,11 @@ class StorePricing(ABC):
                 store_price = 10
 
             # Round off to a format that store recommends
-            store_price_format = self.map_country_to_reference_rounded_price[iso2_code]
+            store_price_format = self.map_country_to_reference_rounded_price.get(iso2_code, 0)
             rounded_price = self.formatter.apply_price_format(price=store_price, format=store_price_format)
 
             mapping["store_currency"] = store_currency
             mapping["store_price"] = rounded_price
             store_prices.append(mapping)
 
-        # Check for countries on store's reference list but not in final mapping (missing PPP data)
-        countries_missing_ppp = set(self.map_country_to_reference_rounded_price.keys()) - set(
-            [i["ISO2"] for i in store_prices]
-        )
-        for c in countries_missing_ppp:
-            mapping = {
-                "store_currency": "USD",
-                "store_price": source_price,
-                "ISO2": c,
-                "ppp_adjusted_local_price": None,
-            }
-            store_prices.append(mapping)
         return store_prices
